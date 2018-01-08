@@ -8,16 +8,21 @@ const METADATA_URL = 'http://169.254.169.254/latest/'
 
 // obtains, parses and formats the relevant data
 // from the EC2 instance metadata service
-const getInstanceData = () => Promise.props({
-  document: request(`${METADATA_URL}dynamic/instance-identity/document`)
-    .then(JSON.parse),
-  role: request(`${METADATA_URL}meta-data/iam/security-credentials/`)
-}).then(async data => Object.assign(data, {
-  id: data.document.instanceId,
-  region: data.document.region,
-  credentials: await request(`${METADATA_URL}meta-data/iam/security-credentials/${data.role}`)
-    .then(JSON.parse)
-}))
+const getInstanceData = async () => {
+  // get role
+  const role =
+    await request(`${METADATA_URL}meta-data/iam/security-credentials/`)
+
+  // get credentials using role
+  const credentials =
+    await request(`${METADATA_URL}meta-data/iam/security-credentials/${role}`)
+
+  // return instance data
+  return {
+    role,
+    credentials
+  }
+}
 
 // creates a signed request by inferring data from the
 // EC2 instance metadata service and signing it with
@@ -25,18 +30,22 @@ const getInstanceData = () => Promise.props({
 const getSignedEc2Request = async () => {
   // get instance data
   const instanceData = await getInstanceData()
-  const { role, region, id, credentials } = instanceData
+  const { role, credentials } = instanceData
 
   // construct request
   const url = 'https://sts.amazonaws.com/'
   const body = 'Action=GetCallerIdentity&Version=2011-06-15'
-  const headers = { 'X-Vault-AWS-IAM-Server-ID': id }
+  // TODO: rethink 'X-Vault-AWS-IAM-Server-ID' implementation (env variable?)
+  const headers = {
+    // 'X-Vault-AWS-IAM-Server-ID': '<vault-id>'
+  }
   const req = {
     service: 'sts',
     body,
     headers,
-    region,
-    doNotModifyHeaders: true // temporal workaround to hashicorp/vault/issues/3763
+    region: 'us-east-1', // https://github.com/hashicorp/vault-ruby/pull/161#issuecomment-355723269
+    doNotModifyHeaders: true // temporal workaround to https://github.com/hashicorp/vault/issues/2810#issuecomment-306530386
+    // TODO: fix aws4 module?
   }
 
   // sign request
