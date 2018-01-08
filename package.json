@@ -25,6 +25,7 @@
     "src"
   ],
   "dependencies": {
+    "bluebird": "^3.5.1",
     "debug": "3.1.0",
     "mustache": "^2.2.1",
     "request": "^2.83.0",
