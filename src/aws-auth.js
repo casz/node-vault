@@ -1,5 +1,5 @@
 const Promise = require('bluebird')
-const request = require('request-promise')
+const request = require('request-promise-native')
 // https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
 const aws4 = require('aws4')
 
