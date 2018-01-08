@@ -9,10 +9,12 @@ const METADATA_URL = 'http://169.254.169.254/latest/'
 // obtains, parses and formats the relevant data
 // from the EC2 instance metadata service
 const getInstanceData = () => Promise.props({
-  id: request(`${METADATA_URL}dynamic/instance-identity/document`)
-    .then(JSON.parse).then(doc => doc.instanceId),
+  document: request(`${METADATA_URL}dynamic/instance-identity/document`)
+    .then(JSON.parse),
   role: request(`${METADATA_URL}meta-data/iam/security-credentials/`)
 }).then(async data => Object.assign(data, {
+  id: data.document.instanceId,
+  region: data.document.region,
   credentials: await request(`${METADATA_URL}meta-data/iam/security-credentials/${data.role}`)
     .then(JSON.parse)
 }))
@@ -23,25 +25,26 @@ const getInstanceData = () => Promise.props({
 const getSignedEc2Request = async () => {
   // get instance data
   const instanceData = await getInstanceData()
+  const { role, region, id, credentials } = instanceData
 
   // construct request
   const url = 'https://sts.amazonaws.com/'
   const body = 'Action=GetCallerIdentity&Version=2011-06-15'
-  const headers = { 'X-Vault-AWS-IAM-Server-ID': instanceData.id }
+  const headers = { 'X-Vault-AWS-IAM-Server-ID': id }
   const req = {
     service: 'sts',
     body,
-    headers
+    headers,
+    region
   }
 
   // sign request
-  const accessKeyId = instanceData.credentials.AccessKeyId
-  const secretAccessKey = instanceData.credentials.SecretAccessKey
-  const sessionToken = instanceData.credentials.Token
+  const accessKeyId = credentials.AccessKeyId
+  const secretAccessKey = credentials.SecretAccessKey
+  const sessionToken = credentials.Token
   aws4.sign(req, { accessKeyId, secretAccessKey, sessionToken })
 
   // construct request for vault
-  const { role } = instanceData
   return {
     role,
     iam_http_request_method: 'POST',
