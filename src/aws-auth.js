@@ -35,7 +35,8 @@ const getSignedEc2Request = async () => {
     service: 'sts',
     body,
     headers,
-    region
+    region,
+    doNotModifyHeaders: true // temporal workaround to hashicorp/vault/issues/3763
   }
 
   // sign request
