@@ -16,6 +16,7 @@ const getInstanceData = async () => {
   // get credentials using role
   const credentials =
     await request(`${METADATA_URL}meta-data/iam/security-credentials/${role}`)
+      .then(JSON.parse)
 
   // return instance data
   return {
