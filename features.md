@@ -360,6 +360,13 @@ TODO: add description :S
 TODO: add description :S
 
 
+## vault.awsIamLogin()
+
+`POST /auth/aws/login`
+
+TODO: add description :S
+
+
 ## vault.tokenAccessors()
 
 `LIST /auth/token/accessors`

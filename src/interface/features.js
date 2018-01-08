@@ -644,6 +644,10 @@ string, the returned response is the exact same as the contained wrapped respons
       res: TOKEN_RESPONSE_SCHEME
     }
   },
+  awsIamLogin: {
+    method: 'POST',
+    path: '/auth/aws/login'
+  },
   // token management
   // - ancestors
   tokenAccessors: {
