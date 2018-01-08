@@ -27,7 +27,7 @@ const getInstanceData = async () => {
 // creates a signed request by inferring data from the
 // EC2 instance metadata service and signing it with
 // AWS signature version 4
-const getSignedEc2Request = async () => {
+const getSignedEc2IamRequest = async () => {
   // get instance data
   const instanceData = await getInstanceData()
   const { role, credentials } = instanceData
@@ -41,17 +41,18 @@ const getSignedEc2Request = async () => {
   }
   const req = {
     service: 'sts',
-    body,
-    headers,
     region: 'us-east-1', // https://github.com/hashicorp/vault-ruby/pull/161#issuecomment-355723269
-    doNotModifyHeaders: true // temporal workaround to https://github.com/hashicorp/vault/issues/2810#issuecomment-306530386
+    doNotModifyHeaders: false, // DISABLED temporal workaround to https://github.com/hashicorp/vault/issues/2810#issuecomment-306530386
+    body,
+    headers
     // TODO: fix aws4 module?
   }
 
   // sign request
-  const accessKeyId = credentials.AccessKeyId
-  const secretAccessKey = credentials.SecretAccessKey
-  const sessionToken = credentials.Token
+  const { AccessKeyId, SecretAccessKey, Token } = credentials
+  const accessKeyId = AccessKeyId
+  const secretAccessKey = SecretAccessKey
+  const sessionToken = Token
   aws4.sign(req, { accessKeyId, secretAccessKey, sessionToken })
 
   // construct request for vault
@@ -69,7 +70,7 @@ const getSignedEc2Request = async () => {
 
 const awsEc2IamLogin = async (vault) => {
   // execute login operation
-  const signedGetCallerIdentityRequest = await getSignedEc2Request()
+  const signedGetCallerIdentityRequest = await getSignedEc2IamRequest()
   const authResult =
     await vault.awsIamLogin(signedGetCallerIdentityRequest)
 
