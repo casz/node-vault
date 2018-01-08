@@ -1,7 +1,6 @@
-const Promise = require('bluebird')
 const request = require('request-promise-native')
 // https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
-const aws4 = require('aws4')
+const aws4 = require('./lib/aws4')
 
 // constant
 const METADATA_URL = 'http://169.254.169.254/latest/'
