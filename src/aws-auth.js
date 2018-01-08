@@ -68,7 +68,4 @@ const awsEc2IamLogin = async (vault) => {
 }
 
 // creates a logged in instance of node-vault
-module.exports = async () => {
-  const vault = nodeVault()
-  return awsEc2IamLogin(vault)
-}
+module.exports = awsEc2IamLogin

@@ -293,6 +293,10 @@ class VaultClient {
 const nodeVault = options => new VaultClient(options).client
 
 // add aws authentication helper
-nodeVault.awsAuth = awsAuth
+nodeVault.awsAuth = async () => {
+  // creates a logged in instance of node-vault
+  const vault = nodeVault()
+  return awsAuth(vault)
+}
 
 module.exports = nodeVault
