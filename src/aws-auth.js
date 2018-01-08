@@ -3,8 +3,6 @@ const request = require('request-promise-native')
 // https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
 const aws4 = require('aws4')
 
-const nodeVault = require('./main')
-
 // constant
 const METADATA_URL = 'http://169.254.169.254/latest/'
 
@@ -42,8 +40,10 @@ const getSignedEc2Request = async () => {
   const sessionToken = instanceData.credentials.Token
   aws4.sign(req, { accessKeyId, secretAccessKey, sessionToken })
 
-  // normalize data for vault
+  // construct request for vault
+  const { role } = instanceData
   return {
+    role,
     iam_http_request_method: 'POST',
     iam_request_url: Buffer
       .from(url).toString('base64'),
@@ -57,8 +57,8 @@ const getSignedEc2Request = async () => {
 const awsEc2IamLogin = async (vault) => {
   // execute login operation
   const signedGetCallerIdentityRequest = await getSignedEc2Request()
-  const { body } = signedGetCallerIdentityRequest
-  const authResult = await vault.awsIamLogin(body)
+  const authResult =
+    await vault.awsIamLogin(signedGetCallerIdentityRequest)
 
   // login with the returned token into node-vault
   vault.login(authResult.auth.client_token)
