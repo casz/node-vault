@@ -325,7 +325,7 @@ describe('node-vault', () => {
       it('should return a Promise with the error if no response is passed', done => {
         const promise = vault.handleVaultResponse()
         promise.catch((err) => {
-          err.message.should.equal('[node-vault:handleVaultResponse] No response passed')
+          err.message.should.equal('[node-vault:handleVaultResponse] No response parameter')
           return done()
         })
       })
@@ -427,6 +427,50 @@ describe('node-vault', () => {
           })
           .catch(done)
         })
+      })
+    })
+
+    describe('_formatRequest (uriTemplate, values)', () => {
+      it('should insert the parameters in the URI template', done => {
+        const path = '/test/{{param_1}}/test/{{param_2}}'
+        const values = {
+          param_1: 'test_value_1',
+          param_2: 'test_value_2'
+        }
+        const result = vault.formatRequest(path, values)
+        result.should.equal('/test/test_value_1/test/test_value_2')
+        return done()
+      })
+
+      it('should insert a default value if missing', done => {
+        const path = '/test/{{param_1}}/test/{{param_2=default_value_2}}'
+        const values = {
+          param_1: 'test_value_1'
+        }
+        const result = vault.formatRequest(path, values)
+        result.should.equal('/test/test_value_1/test/default_value_2')
+        return done()
+      })
+
+      it('should not insert a default value if not missing', done => {
+        const path = '/test/{{param_1}}/test/{{param_2=default_value_2}}'
+        const values = {
+          param_1: 'test_value_1',
+          param_2: 'test_value_2'
+        }
+        const result = vault.formatRequest(path, values)
+        result.should.equal('/test/test_value_1/test/test_value_2')
+        return done()
+      })
+
+      it('should not fail if value is missing without a default', done => {
+        const path = '/test/{{param_1}}/test/{{param_2}}'
+        const values = {
+          param_1: 'test_value_1'
+        }
+        const result = vault.formatRequest(path, values)
+        result.should.equal('/test/test_value_1/test/')
+        return done()
       })
     })
 

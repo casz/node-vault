@@ -566,7 +566,7 @@ string, the returned response is the exact same as the contained wrapped respons
   // third party tokens
   githubLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}github{{/mount_point}}/login',
+    path: '/auth/{{mount_point=github}}/login',
     schema: {
       req: {
         type: 'object',
@@ -582,7 +582,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   userpassLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}userpass{{/mount_point}}/login/{{username}}',
+    path: '/auth/{{mount_point=userpass}}/login/{{username}}',
     schema: {
       req: {
         type: 'object',
@@ -598,7 +598,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   ldapLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}ldap{{/mount_point}}/login/{{username}}',
+    path: '/auth/{{mount_point=ldap}}/login/{{username}}',
     schema: {
       req: {
         type: 'object',
@@ -614,7 +614,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   oktaLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}okta{{/mount_point}}/login/{{username}}',
+    path: '/auth/{{mount_point=okta}}/login/{{username}}',
     schema: {
       req: {
         type: 'object',
@@ -630,7 +630,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   radiusLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}radius{{/mount_point}}/login/{{username}}',
+    path: '/auth/{{mount_point=radius}}/login/{{username}}',
     schema: {
       req: {
         type: 'object',
@@ -842,7 +842,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleRoles: {
     method: 'LIST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role',
+    path: '/auth/{{mount_point=approle}}/role',
     schema: {
       res: APPROLE_RESPONSE_SCHEME
     }
@@ -850,7 +850,7 @@ string, the returned response is the exact same as the contained wrapped respons
   // - approle
   addApproleRole: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role/{{role_name}}',
+    path: '/auth/{{mount_point=approle}}/role/{{role_name}}',
     schema: {
       req: {
         bind_secret_id: {
@@ -885,25 +885,25 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   getApproleRole: {
     method: 'GET',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role/{{role_name}}',
+    path: '/auth/{{mount_point=approle}}/role/{{role_name}}',
     schema: {
       res: APPROLE_RESPONSE_SCHEME
     }
   },
   deleteApproleRole: {
     method: 'DELETE',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role/{{role_name}}'
+    path: '/auth/{{mount_point=approle}}/role/{{role_name}}'
   },
   getApproleRoleId: {
     method: 'GET',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role/{{role_name}}/role-id',
+    path: '/auth/{{mount_point=approle}}/role/{{role_name}}/role-id',
     schema: {
       res: APPROLE_RESPONSE_SCHEME
     }
   },
   updateApproleRoleId: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/role/{{role_name}}/role-id',
+    path: '/auth/{{mount_point=approle}}/role/{{role_name}}/role-id',
     schema: {
       req: {
         type: 'object',
@@ -918,7 +918,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   getApproleRoleSecret: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id',
     schema: {
       req: {
@@ -940,7 +940,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleSecretAccessors: {
     method: 'LIST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id',
     schema: {
       res: APPROLE_RESPONSE_SCHEME
@@ -948,7 +948,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleSecretLookup: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id/lookup',
     schema: {
       req: {
@@ -965,7 +965,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleSecretDestroy: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id/destroy',
     schema: {
       req: {
@@ -981,7 +981,7 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleSecretAccessorLookup: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id-accessor/lookup',
     schema: {
       req: {
@@ -997,12 +997,12 @@ string, the returned response is the exact same as the contained wrapped respons
   },
   approleSecretAccessorDestroy: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}' +
+    path: '/auth/{{mount_point=approle}}' +
       '/role/{{role_name}}/secret-id-accessor/destroy'
   },
   approleLogin: {
     method: 'POST',
-    path: '/auth/{{mount_point}}{{^mount_point}}approle{{/mount_point}}/login',
+    path: '/auth/{{mount_point=approle}}/login',
     schema: {
       req: {
         type: 'object',
