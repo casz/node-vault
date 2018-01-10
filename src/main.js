@@ -1,7 +1,9 @@
 const debug = require('debug')('node-vault')
 // tv4 is a tool to validate json structures
 const tv4 = require('tv4')
-const request = require('request-promise-native')
+// promisified simple-get takes care of requests
+const { promisify } = require('util')
+const simpleGet = promisify(require('simple-get'))
 
 // ----------------
 // import features and methods definitions
@@ -23,6 +25,13 @@ const REQUEST_SCHEMA = {
     }
   },
   required: ['path', 'method']
+}
+
+// ----------------
+// constants
+
+const REQUEST_DEFAULTS = {
+  json: true
 }
 
 /**
@@ -58,12 +67,7 @@ class VaultClient {
     }
 
     // request testing stub injection
-    this.request = ((options._test && options._test['request-promise']) || request).defaults({
-      json: true,
-      resolveWithFullResponse: true,
-      simple: false,
-      strictSSL: !process.env.VAULT_SKIP_VERIFY
-    })
+    this._requestModule = (options._test && options._test['simple-get']) || simpleGet
 
     // create client and save it
     this.client = this._createClient()
@@ -101,13 +105,13 @@ class VaultClient {
       requestOptions.method = data.method
       requestOptions.path = data.path
       delete args.requestOptions
-      requestOptions.json = args
+      if (args) requestOptions.body = args
 
       // no schema object -> no validation
       if (!data.schema) return this._request(requestOptions)
       // else do validation of request URL and body
-      this._validate(requestOptions.json, data.schema.req)
-      this._validate(requestOptions.json, data.schema.query)
+      this._validate(requestOptions.body, data.schema.req)
+      this._validate(requestOptions.body, data.schema.query)
 
       // extend the options and execute request
       const extendedOptions = this._extendRequestOptions(data, requestOptions)
@@ -156,8 +160,8 @@ class VaultClient {
     for (const key of Object.keys(schema.properties)) {
       // if and only if the property exists in the new
       // params, add it to the extended params array
-      key in options.json &&
-        params.push(`${key}=${encodeURIComponent(options.json[key])}`)
+      key in options.body &&
+        params.push(`${key}=${encodeURIComponent(options.body[key])}`)
     }
     // this way, only whitelisted params (on the schema)
     // will be allowed in the request
@@ -182,7 +186,7 @@ class VaultClient {
     // create URI template
     const uriTemplate = `${this._getOption('endpoint')}/${this._getOption('apiVersion')}${options.path}`
     // replace variables in uri
-    const uri = this._formatRequest(uriTemplate, options.json)
+    const uri = this._formatRequest(uriTemplate, options.body)
       // replace unicode encodings
       .replace(/&#x2F;/g, '/')
     // add URI
@@ -194,9 +198,11 @@ class VaultClient {
     typeof token === 'string' && token.length &&
       (options.headers['X-Vault-Token'] = token)
 
+    // get final options with defaults
+    const finalOptions = Object.assign({}, REQUEST_DEFAULTS, options)
     // execute request
-    debug(options.method, uri)
-    const response = await this.request(options)
+    debug(finalOptions.method, uri)
+    const response = await this._requestModule(finalOptions)
     // handle response from vault
     return this._handleVaultResponse(response)
   }

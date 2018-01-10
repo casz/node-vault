@@ -5,8 +5,8 @@ const should = chai.Should
 
 should()
 chai.use(dirtyChai)
-
-const vault = require('./../src/main')()
+console.log(process.env.VAULT_ADDR || 'http://127.0.0.1:8200')
+const nodeVault = require('./../src/main')()
 // import features to validate responses against their json schemas
 const features = require('./../src/interface/features')
 // tv4 is a tool to validate json structures
@@ -22,9 +22,9 @@ const validateResponse = (featureName, response) => {
 describe('integration', () => {
   describe('node-vault', () => {
     it('should initialize a vault server', (done) => {
-      vault.init({ secret_shares: 1, secret_threshold: 1 })
+      nodeVault.init({ secret_shares: 1, secret_threshold: 1 })
         .then((result) => {
-          vault.token = result.root_token
+          nodeVault.token = result.root_token
           assert(validateResponse('init', result))
           return done()
         })
@@ -36,7 +36,7 @@ describe('integration', () => {
         })
     })
     it('should show the current status of the vault server', (done) => {
-      vault.status()
+      nodeVault.status()
         .then((result) => {
           assert(validateResponse('status', result))
           return done()
