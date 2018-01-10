@@ -1,6 +1,6 @@
 const request = require('request-promise-native')
 // https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
-const aws4 = require('./lib/aws4')
+const aws4 = require('aws4')
 
 // constant
 const METADATA_URL = 'http://169.254.169.254/latest/'
@@ -54,6 +54,10 @@ const getSignedEc2IamRequest = async () => {
   const secretAccessKey = SecretAccessKey
   const sessionToken = Token
   aws4.sign(req, { accessKeyId, secretAccessKey, sessionToken })
+
+  // Content-Length header workaround for Vault v0.9.1 and lower
+  // https://github.com/hashicorp/vault/issues/3763/
+  req.headers['Content-Length'] = req.headers['Content-Length'].toString()
 
   // construct request for vault
   return {
