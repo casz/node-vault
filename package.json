@@ -1,6 +1,6 @@
 {
   "name": "node-vault",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "NodeJS API client for HashiCorp's Vault",
   "main": "./src/main.js",
   "scripts": {
@@ -20,8 +20,10 @@
     "examples": "node examples/all"
   },
   "directories": {
-    "example": "./example",
-    "doc": "./docs"
+    "example": "./examples",
+    "doc": "./docs",
+    "test": "./test",
+    "lib": "src"
   },
   "files": [
     "src"
