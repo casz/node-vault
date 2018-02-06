@@ -24,8 +24,9 @@ const getInstanceData = async () => {
   }
 }
 
-// creates a signed request by inferring data from the
-// EC2 instance metadata service and signing it with
+// creates a signed request to the GetCallerIdentity method
+// from the STS service by inferring credentials data from
+// the EC2 instance metadata service and signing it with
 // AWS signature version 4
 const getSignedEc2IamRequest = async () => {
   // get instance data
@@ -45,7 +46,6 @@ const getSignedEc2IamRequest = async () => {
     doNotModifyHeaders: false, // DISABLED temporal workaround to https://github.com/hashicorp/vault/issues/2810#issuecomment-306530386
     body,
     headers
-    // TODO: fix aws4 module?
   }
 
   // sign request
@@ -74,9 +74,8 @@ const getSignedEc2IamRequest = async () => {
 
 const awsEc2IamLogin = async (vault) => {
   // execute login operation
-  const signedGetCallerIdentityRequest = await getSignedEc2IamRequest()
-  const authResult =
-    await vault.awsIamLogin(signedGetCallerIdentityRequest)
+  const request = await getSignedEc2IamRequest()
+  const authResult = await vault.awsIamLogin(request)
 
   // login with the returned token into node-vault
   vault.login(authResult.auth.client_token)
