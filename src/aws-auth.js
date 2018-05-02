@@ -72,9 +72,15 @@ const getSignedEc2IamRequest = async () => {
   }
 }
 
-const awsEc2IamLogin = async (vault) => {
+const awsEc2IamLogin = async (vault, options) => {
   // execute login operation
   const request = await getSignedEc2IamRequest()
+  // the role to use with Vault might be different than the role used by AWS
+  if (options && options.vaultRole) {
+    request.role = options.vaultRole
+  } else if (process.env.VAULT_ROLE) {
+    request.role = process.env.VAULT_ROLE
+  }
   const authResult = await vault.awsIamLogin(request)
 
   // login with the returned token into node-vault
