@@ -13,7 +13,7 @@ NodeJS API client for HashiCorp's [Vault]
 
     # yarn
     yarn add node-vault
-    
+
     # npm
     npm install node-vault
 
@@ -56,6 +56,21 @@ const run = async () => {
   await vault.write('secret/hello', { value: 'world', lease: '1s' })
   await vault.read('secret/hello')
   await vault.delete('secret/hello')
+}
+
+run().catch(console.error)
+```
+
+### Login with AWS
+
+```javascript
+const run = async () => {
+  const awsAuthOptions = {
+    // If your Vault role name differs from your IAM role name, specify the Vault role here:
+    vaultRole: 'my-vault-role'
+  }
+  const vault = await require('node-vault').awsAuth(awsAuthOptions);
+  console.log(await vault.read('secret/something'))
 }
 
 run().catch(console.error)
