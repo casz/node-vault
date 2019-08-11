@@ -1040,6 +1040,4 @@ const authLogins = [
   'radius']
 authLogins.forEach(addAuthLogin)
 
-console.log(features.githubLogin)
-
 module.exports = features
